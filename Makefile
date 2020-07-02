@@ -1,11 +1,15 @@
 
-.PHONY: run
+.PHONY: clean
+.PHONY: all
+.PHONY: test
 
-all:
+all: build
+
+build:
 	meson build . && ninja -C build
 
 clean:
 	rm -rf build
 
-run: all
+test: build
 	./build/cuda-etudes

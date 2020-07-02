@@ -5,22 +5,44 @@ sudo: enabled
 compiler:
   - gcc
 
+cache: ccache
+
 matrix:
   include:
-    - name: CUDA 11
+    - name: CUDA 10
       env:
-        - CUDA=11-0-local_11.0.1-450.36.06-1
-        - CUDA_SHORT=11.0.1
+        - CUDA=10.1.105-1
+        - CUDA_SHORT=10.1
         - UBUNTU_VERSION=ubuntu1804
       dist: bionic
 
+addons:
+  apt:
+    packages:
+      - ninja-build
+
 before_install:
   - |
-    INSTALLER=cuda-repo-${UBUNTU_VERSION}-${CUDA}_amd64.deb
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-    sudo mv cuda-${UBUNTU_VERSION}.pin /etc/apt/preferences.d/cuda-repository-pin-600
-    wget http://developer.download.nvidia.com/compute/cuda/${CUDA_SHORT}/local_installers/${INSTALLER}
+    INSTALLER=cuda-repo-${UBUNTU_VERSION}_${CUDA}_amd64.deb
+    wget http://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/${INSTALLER}
     sudo dpkg -i ${INSTALLER}
-    sudo apt-key add /var/cuda-repo-${UBUNTU_VERSION}-11-0-local/7fa2af80.pub
-    sudo apt-get update -qq
-    sudo apt-get -y install cuda
+    wget https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub
+    sudo apt-key add 7fa2af80.pub
+    sudo apt update -qq
+    sudo apt install -y cuda-core-${CUDA_SHORT/./-} cuda-cudart-dev-${CUDA_SHORT/./-} cuda-cufft-dev-${CUDA_SHORT/./-}
+    sudo apt clean
+    CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
+    LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+    PATH=${CUDA_HOME}/bin:${PATH}
+  - |
+    wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
+    unzip -q ninja-linux.zip -d tools;
+    export PATH="${PWD}/tools:${PATH}";
+    source ~/virtualenv/python3.7/bin/activate;
+    pip3 install meson;
+
+before_script:
+  - make
+
+script:
+  - make test
