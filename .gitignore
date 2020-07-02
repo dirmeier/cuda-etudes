@@ -4,3 +4,8 @@
 *.ptx
 *.cubin
 *.fatbin
+
+.idea/
+
+build/
+samples/

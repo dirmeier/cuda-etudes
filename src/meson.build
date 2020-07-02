@@ -1,0 +1,1 @@
+lib = library('etudes', 'add.cu', include_directories : inc)
