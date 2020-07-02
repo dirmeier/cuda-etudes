@@ -1,17 +1,17 @@
 project(
   'cuda-etudes',
-  ['cuda', 'cpp'],
+  'cpp',
+  'cuda',
   version : '0.0.1',
   default_options : [
     'buildtype=debug',
-    'warning_level=3',
+    'warning_level=2',
     'cpp_std=c++14',
     'b_ndebug=if-release'],
   license : 'BSD-3',
   meson_version : '>= 0.52.0')
 
 cpp = meson.get_compiler('cpp')
-cuda = meson.get_compiler('cuda')
 
 cuda_etudes_warning_flags = []
 foreach cflag: [
@@ -29,16 +29,15 @@ foreach cflag: [
     endif
 endforeach
 
+cuda_dep = dependency('cuda', modules: ['cublas'])
+
 inc = include_directories('include')
 subdir('include')
 subdir('src')
 
-cuda_lib = import('unstable-cuda')
-nvcc_flags = cuda_lib.nvcc_arch_flags(cuda, 'All')
-
 executable(
   'cuda-etudes',
   'main.cpp',
-   cuda_args : nvcc_flags,
-   include_directories : inc,
-   link_with : lib)
+   include_directories: inc,
+   dependencies: cuda_dep,
+   link_with: lib)

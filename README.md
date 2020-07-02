@@ -8,13 +8,17 @@
 
 This repository implements some recipes for programming in CUDA.
 
+## Dependencies
+
+- CUDA 11
+- `meson` and `ninja`
+
 ## Install
 
 Clone/download the project and run:
 
 ```bash
-make 
-./build/cuda-etudes
+make run
 ```
 
 ## Author
