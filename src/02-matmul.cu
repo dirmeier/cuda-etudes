@@ -1,35 +1,65 @@
-#include "etudes/add.h"
 #include <iostream>
+#include <cmath>
+#include <cassert>
+#include "etudes/matmul.h"
 
-#define M 512
+static const int N_THREADS = 5;
 
-__global__ void add_(int N, float *x, float *y)
+__global__ void matmul_(int n_row, int n_col, int width, int* p, int* x, int* y)
 {
-  const int i = threadIdx.x + blockIdx.x * blockDim.x;
-  if (i < N)
-    y[i] = x[i] + y[i];
+    const int row = threadIdx.y + blockIdx.y * blockDim.y;
+    const int col = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (col < n_col && row < n_row)
+    {
+        int sum = 0;
+        for (int i = 0; i < width; ++i)
+        {
+            sum += x[row * width + i] * y[i * n_col + col];
+        }
+        p[row * n_col + col] = sum;
+    }
 }
 
-void add()
+void matmul()
 {
-  const int N = 10;
-  float *x = new float[N];
-  float *y = new float[N];
+    std::cout << "\nmultiply two matrices:\n";
 
-  cudaMallocManaged(&x, N * sizeof(float));
-  cudaMallocManaged(&y, N * sizeof(float));
+    const int N = 10;
+    const int P = 5;
+    const int M = 5;
+    const int Q = 15;
 
-  for (int i = 0; i < N; ++i)
-  {
-    x[i] = 1.0f;
-    y[i] = 2.0f;
-  }
+    int* x = new int[N * P];
+    int* y = new int[M * Q];
+    int* p = new int[N * Q];
+    assert(P == M);
 
-  add_<<<2, 2>>>(N, x, y);
-  cudaDeviceSynchronize();
+    cudaMallocManaged(&x, N * P * sizeof(int));
+    cudaMallocManaged(&y, M * Q * sizeof(int));
+    cudaMallocManaged(&p, N * Q * sizeof(int));
 
-  for (int i = 0; i < N; ++i) std::cout << x[i] << " " << y[i] << "\n";
+    for (int i = 0; i < N * P; ++i)
+    {
+        x[i] = i;
+    }
+    for (int i = 0; i < M * Q; ++i)
+    {
+        y[i] = i;
+    }
 
-  cudaFree(x);
-  cudaFree(y);
+    const int N_BLOCKS = (N * Q + N_THREADS - 1) / N_THREADS;
+    dim3 dim_blocks(N_BLOCKS, N_BLOCKS, 1);
+    dim3 dim_threads(N_THREADS, N_THREADS, 1);
+
+    std::cout << "\tusing n_blocks=" << N_BLOCKS
+              << ", n_threads_per_block=" << N_THREADS << "/" << N_THREADS
+              << "\n";
+
+    matmul_<<<dim_blocks, dim_threads>>>(N, Q, P, p, x, y);
+    cudaDeviceSynchronize();
+
+    cudaFree(x);
+    cudaFree(y);
+    cudaFree(p);
 }

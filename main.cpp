@@ -2,6 +2,7 @@
 #include <cuda_runtime.h>
 
 #include "etudes/add.h"
+#include "etudes/matmul.h"
 
 int cuda_devices(void)
 {
@@ -20,5 +21,7 @@ int main(void)
     }
 
     add();
+    matmul();
+
     return 0;
 }

@@ -16,3 +16,7 @@ test: build
 
 memcheck: build
 	cuda-memcheck build/cuda-etudes
+
+format:
+	clang-format -i src/*.cu
+	clang-format -i include/*.h include/etudes/*.h

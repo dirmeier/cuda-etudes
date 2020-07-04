@@ -11,4 +11,4 @@ void matmul();
 }
 #endif
 
-#endif //CUDA_ETUDES_MATMUL_H
+#endif  // CUDA_ETUDES_MATMUL_H
