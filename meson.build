@@ -39,5 +39,5 @@ executable(
   'cuda-etudes',
   'main.cpp',
    include_directories: inc,
-   dependencies: cuda_dep,
+   dependencies: [cuda_dep],
    link_with: lib)

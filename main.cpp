@@ -12,7 +12,7 @@ int cuda_devices(void)
 
 int main(void)
 {
-    int n = cuda_devices();
+    const int n = cuda_devices();
     if (n == 0)
     {
         std::cout << "No CUDA hardware found. Exiting.\n";

@@ -13,3 +13,6 @@ clean:
 
 test: build
 	./build/cuda-etudes
+
+memcheck: build
+	cuda-memcheck build/cuda-etudes
