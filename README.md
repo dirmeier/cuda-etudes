@@ -11,7 +11,8 @@ computations, to ML methods and statistical models.
 
 ## Dependencies
 
-- CUDA 11
+- CUDA >=10 + `cuBLAS`/`cuRAND` 
+
 - `meson` and `ninja`
 
 ## Install
