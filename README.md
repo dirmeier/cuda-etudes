@@ -20,7 +20,7 @@ computations, to ML methods and statistical models.
 Clone/download the project and run:
 
 ```bash
-make run
+make test
 ```
 
 ## Author
