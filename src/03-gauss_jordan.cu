@@ -1,3 +1,8 @@
+/**
+ *  Gaussian Jordan elimination can be found here: https://en.wikipedia.org/wiki/Gaussian_elimination
+ *  @author: Simon Dirmeier <simon.dirmeier @ web.de>
+ */
+
 #include <iostream>
 #include <cmath>
 #include <random>
@@ -5,41 +10,57 @@
 #include <curand.h>
 #include "etudes/gauss_jordan.h"
 
-static const int N_THREADS = 5;
+static const int N_THREADS = 512;
 
-//__global__ void gauss_jordan_(const int n, float* ab) {
-//  const int row = threadIdx.y + blockIdx.y * blockDim.y;
-//  const int col = threadIdx.x + blockIdx.x * blockDim.x;
-//
-////  int k = 0, c;
-////  for (int i = 0; i < n; i++) {
-////    if (a[i][i] == 0) {
-////      c = 1;
-////      while ((i + c) < n && a[i + c][i] == 0)
-////        c++;
-////      if ((i + c) == n) {
-////        flag = 1;
-////        break;
-////      }
-////      for (j = i, k = 0; k <= n; k++)
-////        swap(a[j][k], a[j + c][k]);
-////    }
-////
-////    for (int j = 0; j < n; j++) {
-////
-////      // Excluding all i == j
-////      if (i != j) {
-////
-////        // Converting Matrix to reduced row
-////        // echelon form(diagonal matrix)
-////        float pro = a[j][i] / a[i][i];
-////
-////        for (k = 0; k <= n; k++)
-////          a[j][k] = a[j][k] - (a[i][k]) * pro;
-////      }
-////    }
-////  }
-//}
+
+int col_arg(const int i, const int n, const int ncol, float* ab) {
+  int c = 0;
+  while ((i + c) < n && ab[(i + c) * ncol + i] == 0) c++;
+  return i + c;
+}
+
+__global__ void swap(const int n, const int i, const int j, const int ncol, float* ab) {
+  const int k = threadIdx.x + blockIdx.x * blockDim.x;
+  if (k <= n) {
+    float tmp = ab[j * ncol + k];
+    ab[j * ncol + k] = ab[i * ncol + k];
+    ab[i * ncol + k] = tmp;
+  }
+}
+
+
+__device__ void substract_(const int i, const int j, const int k, const int ncol, float pro, float *ab) {
+  ab[j * ncol + k] -= ab[i * ncol + k] * pro;
+}
+
+
+__global__ void substract(const int i, const int n, const int ncol,  float* ab) {
+  const int j = threadIdx.x + blockIdx.x * blockDim.x;
+  if (j < n) {
+    if (i != j) {
+      float pro = ab[j * ncol + i] / ab[i * ncol + i];
+      for (int k = 0; k <= n; k++) substract_(i, j, k, ncol, pro, ab);
+    }
+  }
+}
+
+
+void gauss_jordan_(const int n, const int n_blocks, float* ab) {
+  for (int i = 0; i < n; ++i) {
+
+    // form upper triangular matrix
+    if (ab[i * (n + 1) + i] == 0) {
+      int i_max = col_arg(i, n, n + 1, ab);
+      if (i_max == n) return;
+      swap<<<n_blocks, N_THREADS>>>(n, i, i_max, n + 1, ab);
+      cudaDeviceSynchronize();
+    }
+
+    // substract
+    substract<<<n_blocks, N_THREADS>>>(i, n, n + 1, ab);
+    cudaDeviceSynchronize();
+  }
+}
 
 void gauss_jordan() {
   std::cout << "\nsolving system of linear equations:\n";
@@ -48,7 +69,8 @@ void gauss_jordan() {
 
   float* A = new float[N * N];
   float* b = new float[N];
-  float* Ab = new float[N * N + N];
+  float* x = new float[N];
+  float* Ab;
 
   cudaMallocManaged(&Ab, (N * N + N) * sizeof(float));
 
@@ -68,39 +90,15 @@ void gauss_jordan() {
     }
   }
 
-  const int N_BLOCKS = ((N * (N + 1)) + N_THREADS - 1) / N_THREADS;
-  dim3 dim_blocks(N_BLOCKS, N_BLOCKS, 1);
-  dim3 dim_threads(N_THREADS, N_THREADS, 1);
-
+  const int N_BLOCKS = (N + 1 + N_THREADS - 1) / N_THREADS;
   std::cout << "\tusing n_blocks=" << N_BLOCKS
-            << ", n_threads_per_block=" << N_THREADS << "/" << N_THREADS
+            << ", n_threads_per_block=" << N_THREADS
             << "\n";
 
-//  gauss_jordan_ << < dim_blocks, dim_threads >> > (N, N + 1, Ab);
-  cudaDeviceSynchronize();
-
-  for (int i = 0; i < N; ++i) {
-    for (int j = 0; j < N; ++j) {
-      std::cout << A[i * N + j] << " ";
-    }
-    std::cout << "\n";
-  }
-  std::cout << "\n";
-
-  for (int j = 0; j < N; ++j) {
-    std::cout << b[j] << " ";
-  }
-  std::cout << "\n";
-  std::cout << "\n";
-
-  for (int i = 0; i < N; ++i) {
-    for (int j = 0; j < (N + 1); ++j) {
-      std::cout << Ab[i * (N + 1) + j] << " ";
-    }
-    std::cout << "\n";
-  }
+  gauss_jordan_(N, N_BLOCKS, Ab);
 
   delete[] A;
   delete[] b;
+  delete[] x;
   cudaFree(Ab);
 }
