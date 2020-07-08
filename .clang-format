@@ -1,5 +1,6 @@
 ---
 Language:        Cpp
+
 AccessModifierOffset: -1
 AlignAfterOpenBracket:  AlwaysBreak
 AlignConsecutiveAssignments: true
@@ -40,7 +41,7 @@ BreakStringLiterals: true
 ColumnLimit:     80
 CommentPragmas:  ''
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ConstructorInitializerIndentWidth: 2
+ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 2
 Cpp11BracedListStyle: true
 DerivePointerAlignment: true
@@ -56,10 +57,11 @@ IncludeCategories:
     Priority:        3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseLabels: true
-IndentWidth: 2
+IndentWidth:     4
 IndentWrappedFunctionNames: true
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
+
 KeepEmptyLinesAtTheStartOfBlocks: false
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
@@ -89,6 +91,6 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard:        Auto
-TabWidth:        2
+TabWidth:        4
 UseTab:          Never
 ...
