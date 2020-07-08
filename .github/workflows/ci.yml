@@ -11,8 +11,9 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - name: build
-        uses: BSFishy/meson-build@v1.0.1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - uses: BSFishy/meson-build@v1.0.1
         with:
           action: meson build . && ninja -C build
