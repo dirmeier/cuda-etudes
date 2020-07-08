@@ -29,7 +29,7 @@ foreach cflag: [
     endif
 endforeach
 
-cuda_dep = dependency('cuda')
+cuda_dep = dependency('cuda', modules: ['cublas', 'curand'])
 
 inc = include_directories('include')
 subdir('include')
