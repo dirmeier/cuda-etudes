@@ -8,5 +8,6 @@ lib = library(
   'etudes',
   lib_sources,
   include_directories: inc,
-  gnu_symbol_visibility: 'hidden'
+  gnu_symbol_visibility: 'hidden',
+  cpp_args: cuda_etudes_warning_flags
 )

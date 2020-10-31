@@ -32,6 +32,7 @@ endforeach
 cuda_dep = dependency('cuda', modules: ['cublas', 'curand'])
 
 inc = include_directories('include')
+
 subdir('include')
 subdir('src')
 
@@ -40,4 +41,5 @@ executable(
   'main.cpp',
    include_directories: inc,
    dependencies: [cuda_dep],
+   cpp_args: cuda_etudes_warning_flags,
    link_with: lib)
