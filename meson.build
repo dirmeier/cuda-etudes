@@ -37,6 +37,7 @@ subdir('etudes')
 
 aarch_cpp_sources = files([
   'main.cpp',
+  'etudes/rmh.cu'
 ])
 
 executable(

@@ -4,6 +4,7 @@
 #include "etudes/add.h"
 #include "etudes/matmul.h"
 #include "etudes/gauss_jordan.h"
+#include "etudes/rmh.h"
 
 int cuda_devices(void)
 {
@@ -24,6 +25,6 @@ int main(void)
     add();
     matmul();
     gauss_jordan();
-
+  rmh();
     return 0;
 }

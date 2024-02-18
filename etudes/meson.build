@@ -1,11 +1,15 @@
 header_files = [
-  'etudes.h',
+  'add.h',
+  'matmul.h',
+  'gauss_jordan.h',
+  'rmh.h'
 ]
 
 lib_sources = [
   'add.cu',
   'matmul.cu',
-  'gauss_jordan.cu'
+  'gauss_jordan.cu',
+  'rmh.cu'
 ]
 
 install_headers(files(header_files))
