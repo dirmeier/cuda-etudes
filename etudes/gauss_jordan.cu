@@ -7,9 +7,9 @@
 #include <curand.h>
 
 #include <cmath>
-#include <utility>
 #include <iostream>
 #include <random>
+#include <utility>
 
 #include "gauss_jordan.h"
 
