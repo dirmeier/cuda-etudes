@@ -1,8 +1,14 @@
-lib_sources = [
-  '01-add.cu',
-  '02-matmul.cu',
-  '03-gauss_jordan.cu'
+header_files = [
+  'etudes.h',
 ]
+
+lib_sources = [
+  'add.cu',
+  'matmul.cu',
+  'gauss_jordan.cu'
+]
+
+install_headers(files(header_files))
 
 lib = library(
   'etudes',

@@ -6,7 +6,7 @@ project(
   default_options : [
     'buildtype=debug',
     'warning_level=2',
-    'cpp_std=c++14',
+    'cpp_std=c++23',
     'b_ndebug=if-release'],
   license : 'BSD-3',
   meson_version : '>= 0.52.0')
@@ -31,10 +31,13 @@ endforeach
 
 cuda_dep = dependency('cuda', modules: ['cublas', 'curand'])
 
-inc = include_directories('include')
+inc = include_directories('etudes')
 
-subdir('include')
-subdir('src')
+subdir('etudes')
+
+aarch_cpp_sources = files([
+  'main.cpp',
+])
 
 executable(
   'cuda-etudes',
@@ -42,4 +45,5 @@ executable(
    include_directories: inc,
    dependencies: [cuda_dep],
    cpp_args: cuda_etudes_warning_flags,
-   link_with: lib)
+   link_with: lib
+)
